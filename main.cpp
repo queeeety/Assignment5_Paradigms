@@ -10,7 +10,7 @@ using namespace std;
 
 
 
-int Min(int values[2]){
+double Min(double values[2]){
     if (values[0] < values[1]){
         return values[0];
     } else {
@@ -18,7 +18,7 @@ int Min(int values[2]){
     }
 }
 
-int Max(int values[2]){
+double Max(double values[2]){
     if (values[0] > values[1]){
         return values[0];
     } else {
@@ -26,7 +26,7 @@ int Max(int values[2]){
     }
 }
 
-int abs(int value){
+double Abs (double value){
     if (value < 0){
         return -value;
     } else {
@@ -34,7 +34,7 @@ int abs(int value){
     }
 }
 
-int pow(int values[2]){
+double pow(double values[2]){
     int result = 1;
     for (int i = 0; i < values[2]; i++){
         result *= values[1];
@@ -42,15 +42,17 @@ int pow(int values[2]){
     return result;
 }
 
-int avg(int values[2]){
+double avg(double values[2]){
     return (values[0] + values[1]) / 2;
 }
 
-int OperatorsSort(string mainOperation, string value1, string value2 = 0){
-    int values[2];
-    values[0] = stoi(value1);
-    values[1] = stoi(value2);
-    int answer = 0;
+double OperatorsSort(string mainOperation, string value1, string value2 = ""){
+    double values[2];
+    values[0] = stod(value1);
+    if (value2 != ""){
+        values[1] = stod(value2);
+    }
+    double answer = 0;
     if (mainOperation == "min"){
         answer = Min(values);
     }
@@ -58,7 +60,7 @@ int OperatorsSort(string mainOperation, string value1, string value2 = 0){
         answer = Max(values);
     }
     else if (mainOperation == "abs"){
-        answer = abs(values[0]);
+        answer = Abs(values[0]);
     }
     else if (mainOperation == "pow"){
         answer = pow(values);
@@ -69,13 +71,23 @@ int OperatorsSort(string mainOperation, string value1, string value2 = 0){
     return answer;
 }
 
+bool IsSimpleNumber (string line){
+    if (line[0] != '-' && !isdigit(line[0])){
+        return false;
+    }
+    for (int i = 1; i < line.length(); i++){
+        if (!isdigit(line[i])){
+            return false;
+        }
+    }
+    return true;
+}
+
 string LexorPlus(string inputString) {
-        // Define the necessary types
-        typedef exprtk::symbol_table<double> symbol_table_t;
-        typedef exprtk::expression<double> expression_t;
-        typedef exprtk::parser<double> parser_t;
-
-
+    // Define the necessary types
+    typedef exprtk::symbol_table<double> symbol_table_t;
+    typedef exprtk::expression<double> expression_t;
+    typedef exprtk::parser<double> parser_t;
 
     string operations[] = {"min", "max", "abs", "pow", "avg"};
     string symbols[] = {"+", "-", "*", "/"};
@@ -138,7 +150,7 @@ string LexorPlus(string inputString) {
             tempString += inputString[i];
         } // обробка чисел і операторів
     }
-    if (tempString.length() == 1){
+    if (IsSimpleNumber(tempString)){
         return tempString;
     }
     // Create a symbol table and add constants
