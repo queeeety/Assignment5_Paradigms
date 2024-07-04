@@ -96,7 +96,7 @@ string LexorPlus(string inputString) {
     string tempAnswer;
     int smallExpCounter = 0;
     bool basicOperatorFound = false;
-    int answer;
+    double answer;
     for (int i = 0; i < inputString.length(); i++) {
         string probablyOperator = inputString.substr(i, 3);
         if (inputString[i] == ' '){
@@ -126,7 +126,7 @@ string LexorPlus(string inputString) {
                  var1 += inputString[i + smallExpCounter];
                 smallExpCounter++;
             }
-            if (var1.length() > 1) {
+            if (IsSimpleNumber(var1)) {
                 var1 = LexorPlus(var1);
             }
             string var2 = "";
@@ -138,7 +138,7 @@ string LexorPlus(string inputString) {
                     var2 += inputString[i + smallExpCounter];
                     smallExpCounter++;
                 }
-                if (var2.length() > 1) {
+                if (IsSimpleNumber(var2)) {
                     var2 = LexorPlus(var2);
                 }
             }
@@ -146,7 +146,7 @@ string LexorPlus(string inputString) {
             tempString += to_string(answer);
             i += smallExpCounter;
         } // обробка операторів
-        else if (isdigit(inputString[i])|| inputString[i] == '+' || inputString[i] == '-' || inputString[i] == '*' || inputString[i] == '/') {
+        else if (isdigit(inputString[i])|| inputString[i] == '+' || inputString[i] == '-' || inputString[i] == '*' || inputString[i] == '/' || inputString[i] == '.') {
             tempString += inputString[i];
         } // обробка чисел і операторів
     }
