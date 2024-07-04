@@ -9,19 +9,6 @@
 using namespace std;
 
 
-class OperatorNode{
-public:
-    string typeOfOperation;
-    vector<int> values;
-    vector<char> operands;
-
-    OperatorNode(int value, int operand, string typeOfOperation){
-        this->typeOfOperation = typeOfOperation;
-
-    }
-};
-
-
 
 int Min(int values[2]){
     if (values[0] < values[1]){
@@ -173,63 +160,6 @@ string LexorPlus(string inputString) {
     return to_string(result);
 }
 
-
-
-
-
-
-
-
-
-
-
-//    for (int i = 0; i < inputString.length(); i++){
-//        if (isdigit(inputString[i])){
-//            mainOperation += inputString[i];
-//        }
-//        else{
-//            string probablyOperator = inputString.substr(i, 3);
-//            for (string operation : operations){
-//                if (probablyOperator == operation){
-//                    basicOperatorFound = true;
-//                    i+=4;
-//                }
-//            }
-//            if (basicOperatorFound){
-//                int SymbolCounter = 0;
-//                string value1;
-//                string value2;
-//
-//                while (inputString[i] != ',' && inputString[i] != ')' && i != inputString.length()-1){
-//                    value1 += inputString[i];
-//                    i++;
-//                    SymbolCounter++;
-//                }
-//                if (probablyOperator == "abs"){
-//                    int tempAnswer = OperatorsSort(probablyOperator, value1);
-//                }
-//                else {
-//                    while (inputString[i] != ')' && i != inputString.length()-1) {
-//                        value2 += inputString[i];
-//                        i++;
-//                        SymbolCounter++;
-//                    }
-//
-//                    if (value1.length() > 1) {
-//                        value1 = LexorPlus(value1);
-//                    }
-//                    if (value2.length() > 1) {
-//                        value2 = LexorPlus(value2);
-//                    }
-//                    int tempAnswer = OperatorsSort(mainOperation, value1, value2);
-//
-//                }
-//            }
-//        }
-//    }
-//
-//    return answer;
-//}
 
 
 int main(){
