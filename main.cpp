@@ -7,7 +7,9 @@
 #include "exprtk.hpp"
 using namespace std;
 
-
+unordered_map<string, double> variables;
+unordered_map<string, string> definitions;
+string LexorPlus(string inputString);
 
 double Min(double values[2]){
     if (values[0] < values[1]){
@@ -33,22 +35,22 @@ double Abs (double value){
     }
 }
 
-double pow(double values[2]){
-    int result = 1;
-    for (int i = 0; i < values[2]; i++){
-        result *= values[1];
+double pow(const double values[2]){
+    double result = 1;
+    for (int i = 0; i < values[1]; i++){
+        result *= values[0];
     }
     return result;
 }
 
-double avg(double values[2]){
+double avg(const double values[2]){
     return (values[0] + values[1]) / 2;
 }
 
-double OperatorsSort(string mainOperation, string value1, string value2 = ""){
+double OperatorsSort(const string& mainOperation, const string& value1, const string& value2 = ""){
     double values[2];
     values[0] = stod(value1);
-    if (value2 != ""){
+    if (!value2.empty()){
         values[1] = stod(value2);
     }
     double answer = 0;
@@ -82,12 +84,27 @@ bool IsSimpleNumber (string line){
     return true;
 }
 
+void varInspector(const string& inputString){
+    size_t eqPos = inputString.find('=');
+    string varName = inputString.substr(0, eqPos);
+    varName.erase(remove_if(varName.begin(), varName.end(), ::isspace), varName.end());
+    string varValue = inputString.substr(eqPos+1);
+    if (IsSimpleNumber(varValue)){
+        variables[varName] = stod(varValue);
+    }
+    else {
+        variables[varName] = stod(LexorPlus(varValue));
+    }
+}
+
+
 string LexorPlus(string inputString) {
     // Define the necessary types
     typedef exprtk::symbol_table<double> symbol_table_t;
     typedef exprtk::expression<double> expression_t;
     typedef exprtk::parser<double> parser_t;
 
+    bool isFunc = false;
     string operations[] = {"min", "max", "abs", "pow", "avg"};
     string symbols[] = {"+", "-", "*", "/"};
     string mainOperation;
@@ -96,13 +113,17 @@ string LexorPlus(string inputString) {
     string tempAnswer;
     int bracketsCounter = 0;
     int smallExpCounter = 0;
-    bool basicOperatorFound = false;
     double answer;
     for (int i = 0; i < inputString.length(); i++) {
         string probablyOperator = inputString.substr(i, 3);
         if (inputString[i] == ' '){
             continue;
-        } // пробіл обробка
+        }// пробіл обробка
+        else if (probablyOperator == "var"){
+            varInspector(inputString.substr(i+4));
+            isFunc = true;
+            break;
+        }
         else if (inputString[i] == '(') {
             smallExpCounter = 1;
             bracketsCounter = 0;
@@ -171,10 +192,35 @@ string LexorPlus(string inputString) {
         else if (isdigit(inputString[i])|| inputString[i] == '+' || inputString[i] == '-' || inputString[i] == '*' || inputString[i] == '/' || inputString[i] == '.') {
             tempString += inputString[i];
         } // обробка чисел і операторів
+        else if (isalpha(inputString[i])){
+            string variable = "";
+            smallExpCounter = 0;
+            while(isalpha(inputString[i+smallExpCounter])
+            || isdigit(inputString[i+smallExpCounter])
+            || inputString[i+smallExpCounter] == '_'
+            || inputString[i+smallExpCounter] == '.'){
+                variable += inputString[i+smallExpCounter];
+                smallExpCounter++;
+            }
+            if (variables.find(variable) != variables.end()){
+                tempString += to_string(variables[variable]);
+            }
+            else {
+                cout << "Variable " << variable << " is not defined" << endl;
+                return " ";
+            }
+            i += smallExpCounter;
+        }
     }
+
+    if (isFunc){
+        return " ";
+    }
+
     if (IsSimpleNumber(tempString)){
         return tempString;
     }
+
     // Create a symbol table and add constants
     symbol_table_t symbol_table;
     symbol_table.add_constants();
@@ -186,8 +232,7 @@ string LexorPlus(string inputString) {
     // Create a parser and compile the expression
     parser_t parser;
     if (!parser.compile(tempString, expression)) {
-        std::cerr << "Error: Failed to compile expression." << std::endl;
-        return "1";
+        return "Error: Failed to compile expression.";
     }
     // Evaluate the expression
     double result = expression.value();
