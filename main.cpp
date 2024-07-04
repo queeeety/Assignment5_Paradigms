@@ -76,7 +76,7 @@ bool IsSimpleNumber (string line){
         return false;
     }
     for (int i = 1; i < line.length(); i++){
-        if (!isdigit(line[i])){
+        if (!isdigit(line[i]) && line[i] != '.'){
             return false;
         }
     }
@@ -94,6 +94,7 @@ string LexorPlus(string inputString) {
     string mainOperation;
     string tempString;
     string tempAnswer;
+    int bracketsCounter = 0;
     int smallExpCounter = 0;
     bool basicOperatorFound = false;
     double answer;
@@ -104,7 +105,14 @@ string LexorPlus(string inputString) {
         } // пробіл обробка
         else if (inputString[i] == '(') {
             smallExpCounter = 1;
-            while (inputString[i+smallExpCounter] != ')') {
+            bracketsCounter = 0;
+            while (inputString[i+smallExpCounter] != ')' || bracketsCounter != 0) {
+                if (inputString[i+smallExpCounter] == '('){
+                    bracketsCounter++;
+                }
+                else if (inputString[i+smallExpCounter] == ')'){
+                    bracketsCounter--;
+                }
                 tempString += inputString[i+smallExpCounter];
                 smallExpCounter++;
             }
@@ -122,11 +130,18 @@ string LexorPlus(string inputString) {
                 smallExpCounter++;
             } while (inputString[i + smallExpCounter-1] != '(');
             string var1 = "";
-            while (inputString[i + smallExpCounter] != ',' && inputString[i + smallExpCounter] != ')') {
-                 var1 += inputString[i + smallExpCounter];
+            bracketsCounter = 0;
+            while (inputString[i + smallExpCounter] != ',' && inputString[i + smallExpCounter] != ')' || bracketsCounter != 0) {
+                if (inputString[i + smallExpCounter] == '('){
+                    bracketsCounter++;
+                }
+                else if (inputString[i + smallExpCounter] == ')'){
+                    bracketsCounter--;
+                }
+                var1 += inputString[i + smallExpCounter];
                 smallExpCounter++;
             }
-            if (IsSimpleNumber(var1)) {
+            if (!IsSimpleNumber(var1)) {
                 var1 = LexorPlus(var1);
             }
             string var2 = "";
@@ -134,11 +149,18 @@ string LexorPlus(string inputString) {
                 do {
                     smallExpCounter++;
                 } while (inputString[i + smallExpCounter-1] != ',');
-                while (inputString[i + smallExpCounter] != ')') {
+                bracketsCounter = 0;
+                while (inputString[i + smallExpCounter] != ')' || bracketsCounter != 0) {
+                    if (inputString[i + smallExpCounter] == '('){
+                        bracketsCounter++;
+                    }
+                    else if (inputString[i + smallExpCounter] == ')'){
+                        bracketsCounter--;
+                    }
                     var2 += inputString[i + smallExpCounter];
                     smallExpCounter++;
                 }
-                if (IsSimpleNumber(var2)) {
+                if (!IsSimpleNumber(var2)) {
                     var2 = LexorPlus(var2);
                 }
             }
