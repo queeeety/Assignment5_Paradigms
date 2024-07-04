@@ -3,7 +3,6 @@
 //
 #include <iostream>
 #include <string>
-#include <vector>
 #include <cctype>
 #include "exprtk.hpp"
 using namespace std;
@@ -92,6 +91,7 @@ string LexorPlus(string inputString) {
     string operations[] = {"min", "max", "abs", "pow", "avg"};
     string symbols[] = {"+", "-", "*", "/"};
     string mainOperation;
+    string bracketsString;
     string tempString;
     string tempAnswer;
     int bracketsCounter = 0;
@@ -113,10 +113,10 @@ string LexorPlus(string inputString) {
                 else if (inputString[i+smallExpCounter] == ')'){
                     bracketsCounter--;
                 }
-                tempString += inputString[i+smallExpCounter];
+                bracketsString += inputString[i+smallExpCounter];
                 smallExpCounter++;
             }
-            tempAnswer = LexorPlus(tempString);
+            tempAnswer = LexorPlus(bracketsString);
             tempString += tempAnswer;
             i += smallExpCounter;
         } // обробка дужок
