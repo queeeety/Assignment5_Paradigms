@@ -4,12 +4,29 @@
 #include <iostream>
 #include <string>
 #include <cctype>
+#include <utility>
 #include "exprtk.hpp"
 using namespace std;
 
+class Function {
+public:
+    string value;
+    vector<string> parameters;
+    Function(string& value, vector<string>& parameters){
+        this->value = value;
+        this->parameters = parameters;
+    }
+
+    Function(const Function& other) : value(other.value), parameters(other.parameters) {}
+
+};
+
+
 unordered_map<string, double> variables;
-unordered_map<string, string> definitions;
+unordered_map<string, Function> definitions;
 string LexorPlus(string inputString);
+
+
 
 double Min(double values[2]){
     if (values[0] < values[1]){
@@ -97,6 +114,99 @@ void varInspector(const string& inputString){
     }
 }
 
+//def myfunc(a, b) { min(a, b) + max(a, b) }
+void funcInspector(const string& inputString){
+    string funcName;
+    vector<string> parameters;
+    string value;
+    int i = 0;
+    while (inputString[i] != '(' && inputString[i] != ' '){
+        funcName += inputString[i];
+        i++;
+    }
+    string variable;
+    int varCounter = 0;
+
+    do{
+        if (inputString[i] == ',' || inputString[i] == ' ' && !variable.empty()) {
+            parameters.push_back(variable);
+            variable = "";
+            varCounter++;
+        } else if (inputString[i] != ' ' && inputString[i] != '(') {
+            variable += inputString[i];
+        }
+            i++;
+    } while (inputString[i] != ')');
+    varCounter++;
+    parameters.push_back(variable);
+
+    while (inputString[i-1] != '{'){
+        i++;
+    }
+
+    while (inputString[i] != '}'){
+        if (inputString[i] == ' '){
+            i++;
+            continue;
+        }
+        value += inputString[i];
+        i++;
+    }
+    Function newFunction(value, parameters);
+    definitions.insert(make_pair(funcName, newFunction));
+}
+
+bool CheckSurroundings (char Symbol){
+    string surroundings = " /.,;:!?-+*";
+    return surroundings.find(Symbol) != string::npos;
+
+}
+
+string FunctionHandler(string& funcName, string& inputString) {
+    Function function (definitions.at(funcName));
+    unordered_map<string, double> localVariables;
+
+    int bracketsCounter = 0;
+    int i = 0;
+    int parametersWritten = 0;
+    string oneParameter;
+    while (bracketsCounter != 0 && inputString[i] != ')' || parametersWritten < function.parameters.size()) {
+        if (inputString[i] == '('){
+            bracketsCounter++;
+        }
+        else if (inputString[i] == ')'){
+            bracketsCounter--;
+        }
+
+        if (inputString[i] == ',' && bracketsCounter == 1 || inputString[i] == ')' && bracketsCounter == 0){
+            localVariables[function.parameters[parametersWritten]] = stod(LexorPlus(oneParameter));
+            oneParameter = "";
+            parametersWritten++;
+        }
+        else if (inputString[i] != ' ' && ((inputString[i] != '(' && inputString[i] != ')') || bracketsCounter > 1)) {
+            oneParameter += inputString[i];
+        }
+
+
+        i++;
+    }
+    bool needToWrite = false;
+    string expression = function.value;
+    string surroundings = " /.,;:!?-+*()";
+    for (int k = 0; k <= expression.length(); k++){
+        for (int j = 0; j < function.parameters.size(); j++){
+
+            if (expression.substr(k, function.parameters[j].length()) == function.parameters[j]
+            && (surroundings.find(expression[k + function.parameters[j].length()])!= string::npos || k + function.parameters[j].length() == expression.length())
+            && (surroundings.find(expression[k - 1])!= string::npos || k == 0)){
+                expression.replace(k, function.parameters[j].length(), to_string(localVariables[function.parameters[j]]));
+            }
+        }
+    }
+    return LexorPlus(expression);
+}
+
+
 
 string LexorPlus(string inputString) {
     // Define the necessary types
@@ -121,6 +231,11 @@ string LexorPlus(string inputString) {
         }// пробіл обробка
         else if (probablyOperator == "var"){
             varInspector(inputString.substr(i+4));
+            isFunc = true;
+            break;
+        }
+        else if (probablyOperator == "def"){
+            funcInspector(inputString.substr(i+4));
             isFunc = true;
             break;
         }
@@ -171,7 +286,7 @@ string LexorPlus(string inputString) {
                     smallExpCounter++;
                 } while (inputString[i + smallExpCounter-1] != ',');
                 bracketsCounter = 0;
-                while (inputString[i + smallExpCounter] != ')' || bracketsCounter != 0) {
+                while ((inputString[i + smallExpCounter] != ')' || bracketsCounter != 0 ) && i + smallExpCounter < inputString.length()){
                     if (inputString[i + smallExpCounter] == '('){
                         bracketsCounter++;
                     }
@@ -205,12 +320,31 @@ string LexorPlus(string inputString) {
             if (variables.find(variable) != variables.end()){
                 tempString += to_string(variables[variable]);
             }
+            else if (definitions.find(variable) != definitions.end()){ // функція
+                bracketsCounter = 0;
+                smallExpCounter = variable.length();
+                bracketsString = "";
+                while ((bracketsCounter !=0 || inputString[i+smallExpCounter-1] != ')') && i+smallExpCounter < inputString.length()){
+                    if (inputString[i+smallExpCounter] == '('){
+                        bracketsCounter++;
+                    }
+                    else if (inputString[i+smallExpCounter] == ')'){
+                        bracketsCounter--;
+                    }
+                    bracketsString += inputString[i+smallExpCounter];
+                    smallExpCounter++;
+                }
+                tempString += FunctionHandler(variable, bracketsString);
+                i += smallExpCounter;
+
+            }
             else {
                 cout << "Variable " << variable << " is not defined" << endl;
                 return " ";
             }
             i += smallExpCounter;
-        }
+        } // змінна
+
     }
 
     if (isFunc){
