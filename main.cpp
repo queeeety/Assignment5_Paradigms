@@ -194,20 +194,39 @@ string LexorPlus(string inputString) {
     return to_string(result);
 }
 
+void PropperPrint(string answer){
+    bool isComma = false;
+    for (int i = 0; i < answer.length(); i++) {
+        if (answer[i] == '.' ) {
+            isComma = true;
+            if (answer[i+1] == '0'){
+                break;
+            }
+            cout << ".";
+        }
+        else if (answer[i] == '0' && isComma){
+            break;
+        }
+        else {
+            cout << answer[i];
+        }
+    }
+    cout << endl;
 
+}
 
 int main(){
     string inputString;
 
     while (true){
         getline(cin, inputString);
+        if (inputString == "exit"){
+            break;
+        }
         string answer = LexorPlus(inputString);
-        cout << answer << endl;
+        PropperPrint(answer);
     }
-
-
     return 0;
-
 }
 
 // min(2+3, 5)
