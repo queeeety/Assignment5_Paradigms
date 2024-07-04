@@ -242,7 +242,7 @@ string LexorPlus(string inputString) {
         else if (inputString[i] == '(') {
             smallExpCounter = 1;
             bracketsCounter = 0;
-            while (inputString[i+smallExpCounter] != ')' || bracketsCounter != 0) {
+            while ((inputString[i+smallExpCounter] != ')' || bracketsCounter != 0) && (i + smallExpCounter < inputString.length())) {
                 if (inputString[i+smallExpCounter] == '('){
                     bracketsCounter++;
                 }
@@ -267,7 +267,7 @@ string LexorPlus(string inputString) {
             } while (inputString[i + smallExpCounter-1] != '(');
             string var1 = "";
             bracketsCounter = 0;
-            while (inputString[i + smallExpCounter] != ',' && inputString[i + smallExpCounter] != ')' || bracketsCounter != 0) {
+            while ((inputString[i + smallExpCounter] != ',' && inputString[i + smallExpCounter] != ')' || bracketsCounter != 0) && (i + smallExpCounter < inputString.length())) {
                 if (inputString[i + smallExpCounter] == '('){
                     bracketsCounter++;
                 }
@@ -313,7 +313,8 @@ string LexorPlus(string inputString) {
             while(isalpha(inputString[i+smallExpCounter])
             || isdigit(inputString[i+smallExpCounter])
             || inputString[i+smallExpCounter] == '_'
-            || inputString[i+smallExpCounter] == '.'){
+            || inputString[i+smallExpCounter] == '.'
+            && (i + smallExpCounter < inputString.length())){
                 variable += inputString[i+smallExpCounter];
                 smallExpCounter++;
             }
