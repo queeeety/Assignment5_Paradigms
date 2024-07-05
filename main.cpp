@@ -215,8 +215,7 @@ string LexorPlus(string inputString) {
     typedef exprtk::parser<double> parser_t;
 
     bool isFunc = false;
-    string operations[] = {"min", "max", "abs", "pow", "avg"};
-    string symbols[] = {"+", "-", "*", "/"};
+
     string mainOperation;
     string bracketsString;
     string tempString;
@@ -225,6 +224,7 @@ string LexorPlus(string inputString) {
     int smallExpCounter = 0;
     double answer;
     for (int i = 0; i < inputString.length(); i++) {
+        smallExpCounter = 0;
         string probablyOperator = inputString.substr(i, 3);
         if (inputString[i] == ' '){
             continue;
@@ -403,8 +403,13 @@ int main(){
         if (inputString == "exit"){
             break;
         }
-        string answer = LexorPlus(inputString);
-        PropperPrint(answer);
+        try {
+            string answer = LexorPlus(inputString);
+            PropperPrint(answer);
+        }
+        catch (exception& e){
+            cout << "Error: " << e.what() << endl;
+        }
     }
     return 0;
 }
