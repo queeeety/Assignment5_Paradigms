@@ -391,25 +391,21 @@ void PropperPrint(string answer){
             cout << answer[i];
         }
     }
-    cout << endl;
-
 }
 
 int main(){
     string inputString;
-
-    while (true){
-        getline(cin, inputString);
-        if (inputString == "exit"){
-            break;
+    string answer;
+    try {
+        do {
+            getline(cin, inputString);
+            answer = LexorPlus(inputString);
         }
-        try {
-            string answer = LexorPlus(inputString);
-            PropperPrint(answer);
-        }
-        catch (exception& e){
-            cout << "Error: " << e.what() << endl;
-        }
+        while (answer == " ");
+        PropperPrint(answer);
+    }
+    catch (exception& e){
+        cout << "Error: " << e.what();
     }
     return 0;
 }
